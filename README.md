@@ -33,10 +33,32 @@ diff.cpi <- data$jpcpi.r - data$uscpi.r
 diff.prod <- data$jpprod.r - data$usprod.r
 
 lm <- lm(data$fx.r ~ diff.cpi + diff.prod)
-lm.lag <- lm(data$fx.r ~ lag(diff.cpi) + lag(diff.prod))
 summary(lm)
+
+####################lagged model################
+###create dataframe
+lag.diff.cpi<-lag(diff.cpi)
+lag.diff.prod<-(lag(diff.prod))
+lm.lag<-data.frame(data$fx.r,lag.diff.cpi,lag.diff.prod)
+
+##clean up dataset
+lm.lag<-na.omit(lm.lag)
+
+names(lm.lag)<-c("deltajpus","lagcpidif","lagproddif")
+
+laglm<-lm(deltajpus~lagcpidif+lagproddif, lm.lag)
 summary(lm.lag)
-```
+
+###graphing###########
+
+with(lm.lag,plot(lagcpidif, deltajpus, col="blue"))
+abline(laglm, lwd=3, col="red")
+with(lm.lag,plot(lagproddif,deltajpus))
+
+#####graphing the density function of deltajpus
+d.deltajpus<-with(lm.lag,density(deltajpus))
+plot(d.deltajpus,main="delta JPY USD")
+polygon(d.deltajpus, col="red", border="blue", lwd=3) 
 
 The first model doesn't explain anything.
 The second (lagged) model doesn't explain anything much either.
